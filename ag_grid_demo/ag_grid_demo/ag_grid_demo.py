@@ -8,45 +8,38 @@ from custom_components.reflex_ag_grid_ce.types import multi_row_selection
 
 df = pd.DataFrame(
     {
-        "Label":
-            [
-                "index",
-                "Tree",
-                "model",
-                "model-auth",
-                "model-auth2"
-            ],
-        "Description":
-            [
-                "Simple\nblablablalbala",
-                "Aggregate",
-                "todo",
-                "todo",
-                "todo"
-            ],
-        "Need Pro":
-            [
-                False,
-                True,
-                False,
-                False,
-                False,
-            ],
-        "Link":
-            [
-                "/",
-                "/tree",
-                "/model",
-                "/model-auth",
-                "/model-auth2"
-            ]
-    })
+        "Label": ["index", "Tree", "model", "model-auth", "model-auth2"],
+        "Description": ["Simple\nblablablalbala", "Aggregate", "todo", "todo", "todo"],
+        "Need Pro": [
+            False,
+            True,
+            False,
+            False,
+            False,
+        ],
+        "Link": ["/", "/tree", "/model", "/model-auth", "/model-auth2"],
+    }
+)
 
 column_defs = [
-    ag_grid_ce.column_def(field="Label"),
-    ag_grid_ce.column_def(field="Description", wrap_text=False),
-    ag_grid_ce.column_def(field="Need Pro"),
-    ag_grid_ce.column_def(field="Link", cell_renderer=ag_grid_ce.renderers.link),
+    ag_grid_ce.column_group(
+        group_id="TopLine1",
+        header_name="Top line in a multi-level header",
+        children=[
+            ag_grid_ce.column_def(field="Label"),
+            ag_grid_ce.column_def(field="Description", wrap_text=False),
+        ],
+    ),
+    ag_grid_ce.column_group(
+        group_id="TopLine2",
+        header_name="Top line 2 in a multi-level header",
+        children=[
+            ag_grid_ce.column_def(field="Need Pro"),
+            ag_grid_ce.column_def(
+                field="Link", cell_renderer=ag_grid_ce.renderers.link
+            ),
+        ],
+    )
 ]
 
 
@@ -72,6 +65,7 @@ def index():
     return rx.vstack(
         rx.vstack(
             ag_grid_ce(
+                theme="balham",
                 id="ag_grid_basic_1",
                 row_data=df.to_dict("records"),
                 column_defs=column_defs,

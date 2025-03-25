@@ -555,9 +555,8 @@ class AgGrid(rx.Component):
             props["get_row_id"] = rx.Var(f"(params) => params.data.{row_id_key}").to(
                 rx.EventChain
             )
-
         props["class_name"] = rx.match(
-            props.get("theme", "quartz"),
+            props.pop("theme", "quartz"),
             ("quartz", rx.color_mode_cond("ag-theme-quartz", "ag-theme-quartz-dark")),
             ("balham", rx.color_mode_cond("ag-theme-balham", "ag-theme-balham-dark")),
             ("alpine", rx.color_mode_cond("ag-theme-alpine", "ag-theme-alpine-dark")),
