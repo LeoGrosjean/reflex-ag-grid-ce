@@ -5,11 +5,11 @@ import faker
 import reflex as rx
 from sqlmodel import Column, DateTime, Field, func
 
-from custom_components.reflex_ag_grid_ce.types import multi_row_selection
-from custom_components.reflex_ag_grid_ce import model_wrapper
-
-from custom_components.reflex_ag_grid_ce import ModelWrapper
-from custom_components.reflex_ag_grid_ce.types import single_row_selection
+from custom_components.reflex_ag_grid_ce import ModelWrapper, model_wrapper
+from custom_components.reflex_ag_grid_ce.types import (
+    multi_row_selection,
+    single_row_selection,
+)
 
 
 class Friend(rx.Model, table=True):
@@ -101,7 +101,7 @@ class FriendModelWrapper(ModelWrapper[Friend]):
         return cols
 
     async def on_value_setter(
-            self, row_data: dict[str, Any], field_name: str, value: Any
+        self, row_data: dict[str, Any], field_name: str, value: Any
     ):
         auth_state = await self.get_state(AuthState)
         if not auth_state.logged_in:
@@ -133,7 +133,7 @@ def model_page_auth():
             is_row_selectable=rx.vars.function.ArgsFunctionOperation.create(
                 ("rowNode",),
                 rx.Var("rowNode.data ? rowNode.data.age == 26 : false"),
-            )
+            ),
         ),
     )
     return rx.vstack(
@@ -161,7 +161,7 @@ def model_page_auth():
 
 
 @rx.page("/model-auth2")
-def model_page_auth():
+def model_page_auth2():
     grid = FriendModelWrapper.create(
         model_class=Friend,
         row_selection=multi_row_selection(
@@ -169,7 +169,7 @@ def model_page_auth():
             is_row_selectable=rx.vars.function.ArgsFunctionOperation.create(
                 ("rowNode",),
                 rx.Var("rowNode.data ? rowNode.data.age > 26 : false"),
-            )
+            ),
         ),
     )
     return rx.vstack(

@@ -1,4 +1,5 @@
 from typing import Any
+
 import reflex as rx
 
 from custom_components.reflex_ag_grid_ce import ag_grid_ce
@@ -204,10 +205,9 @@ class TreeDisplayState(rx.State):
     combine_hosts: rx.Field[bool] = rx.field(True)
 
     host_filter: rx.Field[bool] = rx.field(True)
-    host_value = 'vali'
+    host_value = "vali"
 
     parent_select: rx.Field[bool] = rx.field(True)
-
 
 
 @rx.page("/tree")
@@ -272,15 +272,17 @@ def tree_example():
                         rx.Var(
                             f"""
                         return rowNode.data ? rowNode.data.host === {TreeDisplayState.host_value} : false
-                        """),
+                        """
+                        ),
                         explicit_return=True,
                     ),
                     rx.vars.function.ArgsFunctionOperation.create(
                         ("rowNode",),
                         rx.Var(
-                            f"""
+                            """
                             return true
-                            """),
+                            """
+                        ),
                         explicit_return=True,
                     ),
                 ),
