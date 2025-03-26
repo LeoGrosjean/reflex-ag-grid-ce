@@ -236,12 +236,27 @@ class ColumnDef(PropsBase):
     # )
     value_setter: Optional[Callable] | rx.Var[Callable]
 
+    # usage of value_parser:
+    # rx.vars.function.ArgsFunctionOperation.create(
+    #     ("params",),
+    #     rx.Var(
+    #         f"""
+    #          return Number(params.newValue);
+    #          """
+    #          ),
+    #     explicit_return=True,
+    # )
+    
+    value_parser:  Optional[Callable] | rx.Var[Callable]
+    cell_editor: Optional[AGEditors | str | rx.Var[AGEditors | str]]
+
     filter: AGFilters | str | rx.Var[AGFilters] | rx.Var[str] | None = None
     floating_filter: bool | rx.Var[bool] = False
     header_name: str | rx.Var[str] | None = None
     header_tooltip: str | rx.Var[str] | None = None
-    # checkbox_selection: bool | rx.Var[bool] = False
-    cell_editor: AGEditors | str | rx.Var[AGEditors] | rx.Var[str] | None = None
+
+    #checkbox_selection: bool | rx.Var[bool] = False
+
     cell_editor_params: dict[str, list[Any]] | rx.Var[dict[str, list[Any]]] | None = (
         None
     )
