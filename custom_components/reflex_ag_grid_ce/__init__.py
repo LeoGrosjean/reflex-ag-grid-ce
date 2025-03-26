@@ -1,4 +1,3 @@
-from .ag_grid import ag_grid_ce
 from custom_components.reflex_ag_grid_ce.experimental.datasource import Datasource
 from custom_components.reflex_ag_grid_ce.experimental.handlers import (
     apply_filter_model,
@@ -18,9 +17,8 @@ from custom_components.reflex_ag_grid_ce.experimental.wrapper import (
     model_wrapper,
 )
 
-from .types import (
-    single_row_selection
-)
+from .ag_grid import ag_grid_ce
+from .types import single_row_selection
 
 __all__ = [
     "AbstractWrapper",
@@ -35,8 +33,8 @@ __all__ = [
     "handle_number_filter",
     "handle_text_filter",
     "model_wrapper",
+    "single_row_selection",
     "where_filter_def",
     "where_number_filter",
     "where_text_filter",
-    "single_row_selection"
 ]

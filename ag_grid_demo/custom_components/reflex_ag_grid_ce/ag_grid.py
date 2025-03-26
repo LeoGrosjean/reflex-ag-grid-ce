@@ -4,13 +4,17 @@
 
 import os
 from types import SimpleNamespace
-from typing import Any, Callable, Literal, Union, Optional, Mapping, Dict
+from typing import Any, Callable, Dict, Literal, Mapping, Optional, Union
 
 import reflex as rx
 from reflex.components.el import Div
 from reflex.components.props import PropsBase
+from reflex.event import EventSpec
 
-from custom_components.reflex_ag_grid_ce.experimental.datasource import Datasource, SSRMDatasource
+from custom_components.reflex_ag_grid_ce.experimental.datasource import (
+    Datasource,
+    SSRMDatasource,
+)
 
 AG_GRID_VERSION = "32.3.3"
 
@@ -112,9 +116,7 @@ def _on_cell_value_changed(event: rx.Var) -> list[rx.Var]:
         rx.Var(
             f"(() => {{let {{newValue, ...rest}} = {event}; return newValue}})()"
         ),  # new value
-        rx.Var(
-            f"(() => {{let {{node, ...rest}} = {event}; return node.id}})()"
-        ),
+        rx.Var(f"(() => {{let {{node, ...rest}} = {event}; return node.id}})()"),
     ]
 
 
@@ -186,13 +188,21 @@ class ColumnDef(PropsBase):
     ref_data: Optional[dict[str, str] | rx.Var[dict[str, str]]]
     # key_creator: Optional[Callable | rx.Var[Callable]]
     suppress_columns_tool_panel: Optional[bool | rx.Var[bool]]
-    column_group_show: Optional[Literal["open", "closed"] | rx.Var[Literal["open", "closed"]]]
+    column_group_show: Optional[
+        Literal["open", "closed"] | rx.Var[Literal["open", "closed"]]
+    ]
 
     icons: Optional[Dict[str, str] | rx.Var[Dict[str, str]]]
 
-    suppress_navigable: Optional[bool] | rx.Var[bool] # TODO suppress_navigable add callback event
-    suppress_keyboard_event: Optional[bool] | rx.Var[bool] # TODO suppress_keyboard_event add event
-    suppress_paste: Optional[bool] | rx.Var[bool] # TODO suppress_paste add callback event
+    suppress_navigable: (
+        Optional[bool] | rx.Var[bool]
+    )  # TODO suppress_navigable add callback event
+    suppress_keyboard_event: (
+        Optional[bool] | rx.Var[bool]
+    )  # TODO suppress_keyboard_event add event
+    suppress_paste: (
+        Optional[bool] | rx.Var[bool]
+    )  # TODO suppress_paste add callback event
     suppress_fill_handle: Optional[bool] | rx.Var[bool]
 
     # context_menu_items: TODO learn how context menu item works
@@ -202,14 +212,17 @@ class ColumnDef(PropsBase):
 
     hide: Optional[bool | rx.Var[bool]]
     lock_visible: Optional[bool | rx.Var[bool]]
-    lock_position: Optional[bool | Literal["left", "right"] | rx.Var[bool | Literal["left", "right"]]]
+    lock_position: Optional[
+        bool | Literal["left", "right"] | rx.Var[bool | Literal["left", "right"]]
+    ]
     suppress_movable: Optional[bool | rx.Var[bool]]
     use_value_formatter_for_export: Optional[bool | rx.Var[bool]]
 
     #### Editing doc here
     # https://www.ag-grid.com/archive/32.3.3/react-data-grid/column-properties/#reference-editing
 
-    editable: Optional[bool | rx.Var[bool]] # TODO editable add support to Callback
+    editable: Optional[bool | rx.Var[bool]]  # TODO editable add support to Callback
+
     # usage of value_setter:
     # rx.vars.function.ArgsFunctionOperation.create(
     #     ("params",),
@@ -233,15 +246,15 @@ class ColumnDef(PropsBase):
     #          ),
     #     explicit_return=True,
     # )
+    
     value_parser:  Optional[Callable] | rx.Var[Callable]
     cell_editor: Optional[AGEditors | str | rx.Var[AGEditors | str]]
-
-
 
     filter: AGFilters | str | rx.Var[AGFilters] | rx.Var[str] | None = None
     floating_filter: bool | rx.Var[bool] = False
     header_name: str | rx.Var[str] | None = None
     header_tooltip: str | rx.Var[str] | None = None
+
     #checkbox_selection: bool | rx.Var[bool] = False
 
     cell_editor_params: dict[str, list[Any]] | rx.Var[dict[str, list[Any]]] | None = (
@@ -294,8 +307,8 @@ class AgGridAPI(rx.Base):
     def _api(self) -> rx.Var:
         return f"refs['{self.ref}']?.current?.api"
 
-    def __getattr__(self, name: str) -> Callable[..., rx.event.EventSpec]:
-        def _call_api(*args, **kwargs) -> rx.event.EventSpec:
+    def __getattr__(self, name: str) -> Callable[..., EventSpec]:
+        def _call_api(*args, **kwargs) -> EventSpec:
             """Call the ag-grid API method with the given arguments.
 
             Args:
@@ -303,7 +316,7 @@ class AgGridAPI(rx.Base):
                 **kwargs: Keyword arguments to pass to rx.call_script.
 
             Returns:
-                rx.event.EventSpec: The event specification.
+                EventSpec: The event specification.
             """
             var_args = [str(rx.Var.create(arg)) for arg in args]
             return rx.call_script(
@@ -335,7 +348,7 @@ class AgGrid(rx.Component):
     ## Variable for row selection type
     row_selection: rx.Var[Optional[Mapping[str, Callable]]]
 
-    #mode: rx.Var[str] = "single"
+    # mode: rx.Var[str] = "single"
 
     # Variable to animate rows
     animate_rows: rx.Var[bool] = False
@@ -374,10 +387,10 @@ class AgGrid(rx.Component):
     group_default_expanded: rx.Var[Optional[int]] = None
 
     # Variable to indicate if group selects children
-    #group_selects_children: rx.Var[bool] = rx.Var.create(False)
+    # group_selects_children: rx.Var[bool] = rx.Var.create(False)
 
     # Variable to suppress row click selection
-    #suppress_row_click_selection: rx.Var[bool] = rx.Var.create(False)
+    # suppress_row_click_selection: rx.Var[bool] = rx.Var.create(False)
 
     enable_click_selection: rx.Var[bool] = rx.Var.create(False)
 
@@ -557,9 +570,8 @@ class AgGrid(rx.Component):
             props["get_row_id"] = rx.Var(f"(params) => params.data.{row_id_key}").to(
                 rx.EventChain
             )
-
         props["class_name"] = rx.match(
-            props.get("theme", "quartz"),
+            props.pop("theme", "quartz"),
             ("quartz", rx.color_mode_cond("ag-theme-quartz", "ag-theme-quartz-dark")),
             ("balham", rx.color_mode_cond("ag-theme-balham", "ag-theme-balham-dark")),
             ("alpine", rx.color_mode_cond("ag-theme-alpine", "ag-theme-alpine-dark")),
@@ -601,16 +613,16 @@ class AgGrid(rx.Component):
     def api(self) -> AgGridAPI:
         return AgGridAPI(ref=self.get_ref())
 
-    def get_selected_rows(self, callback: rx.EventHandler) -> rx.event.EventSpec:
+    def get_selected_rows(self, callback: rx.EventHandler) -> EventSpec:
         return self.api.getSelectedRows(callback=callback)
 
-    def select_all(self) -> rx.event.EventSpec:
+    def select_all(self) -> EventSpec:
         return self.api.selectAll()
 
-    def deselect_all(self) -> rx.event.EventSpec:
+    def deselect_all(self) -> EventSpec:
         return self.api.deselectAll()
 
-    def select_rows_by_key(self, keys: list[str]) -> rx.event.EventHandler:
+    def select_rows_by_key(self, keys: list[str]) -> rx.EventHandler:
         keys_var = rx.Var.create(keys, _var_is_string=False)
         script = f"""
 let api = {self.api};
@@ -626,7 +638,7 @@ api.setNodesSelected({{ nodes: selected_nodes, newValue: true }});
 """
         return rx.call_script(script)  # type: ignore
 
-    def log_nodes(self) -> rx.event.EventSpec:
+    def log_nodes(self) -> EventSpec:
         return rx.call_script(
             f"""
 let api = {self.api};
@@ -637,7 +649,7 @@ api.forEachNode(function (node) {{
 """
         )
 
-    def setGridOption(self, key: str, value: rx.Var) -> rx.event.EventSpec:  # noqa: N802
+    def setGridOption(self, key: str, value: rx.Var) -> EventSpec:  # noqa: N802
         return self.api.set_grid_option(key, value)
 
     def set_datasource(self, datasource: Datasource):
@@ -652,19 +664,19 @@ api.forEachNode(function (node) {{
             value=rx.Var.create(datasource, _var_is_string=False),
         )
 
-    def show_loading_overlay(self) -> rx.event.EventSpec:
+    def show_loading_overlay(self) -> EventSpec:
         return self.api.showLoadingOverlay()
 
-    def show_no_rows_overlay(self) -> rx.event.EventSpec:
+    def show_no_rows_overlay(self) -> EventSpec:
         return self.api.showNoRowsOverlay()
 
-    def hide_overlay(self) -> rx.event.EventSpec:
+    def hide_overlay(self) -> EventSpec:
         return self.api.hideOverlay()
 
-    def redraw_rows(self) -> rx.event.EventSpec:
+    def redraw_rows(self) -> EventSpec:
         return self.api.redrawRows()
 
-    def export_data_as_csv(self) -> rx.event.EventSpec:
+    def export_data_as_csv(self) -> EventSpec:
         """Export the grid data as a CSV file."""
         return self.api.exportDataAsCsv()
 
